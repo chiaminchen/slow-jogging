@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getWeekRange, formatDateKey, formatDateShort, formatMinutes, WEEKDAY_LABELS } from '../utils/helpers';
 import { getHistoryData } from '../utils/api';
+import runIcon from '../assets/run.png';
 
 export function HistoryView({ onBack }) {
     const [weekOffset, setWeekOffset] = useState(0);
@@ -64,7 +65,7 @@ export function HistoryView({ onBack }) {
     return (
         <div className="card">
             <h1 className="page-title">
-                <img src="/run.png" alt="跑步" style={{ width: '1.2em', height: '1.2em', verticalAlign: 'middle', marginRight: '0.3em' }} />
+                <img src={runIcon} alt="跑步" style={{ width: '1.2em', height: '1.2em', verticalAlign: 'middle', marginRight: '0.3em' }} />
                 超慢跑計時器
             </h1>
 

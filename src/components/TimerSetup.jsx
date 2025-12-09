@@ -1,3 +1,5 @@
+import runIcon from '../assets/run.png';
+
 export function TimerSetup({ duration, setDuration, bpm, setBpm, onStart, onShowHistory }) {
     const minDuration = 5;
     const maxDuration = 120;
@@ -7,7 +9,7 @@ export function TimerSetup({ duration, setDuration, bpm, setBpm, onStart, onShow
     return (
         <div className="card">
             <h1 className="page-title">
-                <img src="/run.png" alt="跑步" style={{ width: '1.2em', height: '1.2em', verticalAlign: 'middle', marginRight: '0.3em' }} />
+                <img src={runIcon} alt="跑步" style={{ width: '1.2em', height: '1.2em', verticalAlign: 'middle', marginRight: '0.3em' }} />
                 超慢跑計時器
             </h1>
 

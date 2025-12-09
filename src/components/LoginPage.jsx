@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import runIcon from '../assets/run.png';
 
 export function LoginPage({ onLogin }) {
     const [username, setUsername] = useState('');
@@ -22,7 +23,7 @@ export function LoginPage({ onLogin }) {
     return (
         <div className="card" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
             <h1 className="page-title">
-                <img src="/run.png" alt="跑步" style={{ width: '1.2em', height: '1.2em', verticalAlign: 'middle', marginRight: '0.3em' }} />
+                <img src={runIcon} alt="跑步" style={{ width: '1.2em', height: '1.2em', verticalAlign: 'middle', marginRight: '0.3em' }} />
                 超慢跑計時器
             </h1>
 
