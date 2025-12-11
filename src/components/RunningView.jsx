@@ -13,6 +13,7 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
     const metronomeRef = useRef(null);
     const startTimeRef = useRef(null);
     const pausedTimeRef = useRef(0);
+    const wakeLockRef = useRef(null);
 
     const totalSeconds = duration * 60;
     const progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
@@ -64,14 +65,50 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
         }, 1000);
     }, []);
 
+    // 請求螢幕保持喚醒
+    const requestWakeLock = async () => {
+        if ('wakeLock' in navigator) {
+            try {
+                wakeLockRef.current = await navigator.wakeLock.request('screen');
+                console.log('Wake Lock 已啟用');
+            } catch (err) {
+                console.log('Wake Lock 請求失敗:', err);
+            }
+        }
+    };
+
+    // 釋放螢幕喚醒鎖定
+    const releaseWakeLock = async () => {
+        if (wakeLockRef.current) {
+            try {
+                await wakeLockRef.current.release();
+                wakeLockRef.current = null;
+                console.log('Wake Lock 已釋放');
+            } catch (err) {
+                console.log('Wake Lock 釋放失敗:', err);
+            }
+        }
+    };
+
     // 初始化
     useEffect(() => {
         startTimer();
         startMetronome();
+        requestWakeLock();
+
+        // 處理頁面可見性變化（從背景回到前景時重新請求）
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && !isPaused && !isCompleted) {
+                requestWakeLock();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
             if (metronomeRef.current) clearInterval(metronomeRef.current);
+            releaseWakeLock();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, [startTimer, startMetronome]);
 
