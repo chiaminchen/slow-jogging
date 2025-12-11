@@ -3,7 +3,8 @@ let audioContext = null;
 
 // 初始化 AudioContext
 export const initAudioContext = () => {
-    if (!audioContext) {
+    // 如果 audioContext 不存在或已關閉，重新創建
+    if (!audioContext || audioContext.state === 'closed') {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
     return audioContext;
