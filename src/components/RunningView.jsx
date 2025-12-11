@@ -16,6 +16,12 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
     const wakeLockRef = useRef(null);
     // 追蹤組件掛載狀態
     const mountedRef = useRef(true);
+    // 追蹤剩餘時間的 ref（用於事件處理器中獲取最新值）
+    const timeLeftRef = useRef(timeLeft);
+
+    useEffect(() => {
+        timeLeftRef.current = timeLeft;
+    }, [timeLeft]);
 
     const totalSeconds = duration * 60;
     const progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
@@ -129,35 +135,36 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
         // 處理頁面可見性變化
         const handleVisibilityChange = async () => {
             if (document.visibilityState === 'hidden') {
-                // 頁面隱藏時停止節拍器（避免多重 interval）
-                if (metronomeRef.current) {
-                    clearInterval(metronomeRef.current);
-                    metronomeRef.current = null;
-                }
-            } else if (document.visibilityState === 'visible') {
-                // 頁面顯示時
+                // 頁面隱藏時：自動轉為暫停狀態
                 if (!isPausedRef.current && !isCompletedRef.current) {
-                    // 重新請求 wake lock
-                    requestWakeLock();
+                    console.log('App 切換至背景，自動暫停');
 
-                    // 直接建立新的節拍器 interval
+                    // 1. 更新狀態
+                    setIsPaused(true);
+                    isPausedRef.current = true;
+
+                    // 2. 停止計時器
+                    if (timerRef.current) clearInterval(timerRef.current);
+
+                    // 3. 停止節拍器
                     if (metronomeRef.current) {
                         clearInterval(metronomeRef.current);
                         metronomeRef.current = null;
+                        // 確保真正停止發聲
+                        stopMetronome();
                     }
 
-                    // 先播放一次確保 AudioContext 激活
-                    await playMetronomeSound();
-
-                    // 確保組件仍在掛載中且頁面仍可見才啟動 interval
-                    if (mountedRef.current && document.visibilityState === 'visible' && !isPausedRef.current && !isCompletedRef.current) {
-                        // 再次清除以防萬一
-                        if (metronomeRef.current) clearInterval(metronomeRef.current);
-
-                        metronomeRef.current = setInterval(() => {
-                            playMetronomeSound();
-                        }, 60000 / bpm);
-                    }
+                    // 4. 記錄暫停時的時間
+                    pausedTimeRef.current = timeLeftRef.current;
+                }
+            } else if (document.visibilityState === 'visible') {
+                // 頁面顯示時
+                // 因為已經自動暫停，這裡只需要重新請求 wake lock，不需要自動 resuming
+                if (!isCompletedRef.current) {
+                    requestWakeLock();
+                    // 如果需要恢復 AudioContext 可以在這裡做，但因為是暫停狀態，
+                    // 等用戶按下「繼續」時（togglePause）會再次 startMetronome -> playMetronomeSound
+                    // 那裡已經有 await context.resume() 的邏輯了（或者被切換到 resetAudioContext 邏輯替代了）
                 }
             }
         };
