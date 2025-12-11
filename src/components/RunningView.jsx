@@ -159,9 +159,11 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
     // 取消結束
     const cancelStop = () => {
         setShowConfirm(false);
-        // 繼續計時器和節拍器
-        startTimer();
-        startMetronome();
+        // 只有在之前不是暫停狀態時才繼續計時器和節拍器
+        if (!isPaused) {
+            startTimer();
+            startMetronome();
+        }
     };
 
     // 完成畫面
