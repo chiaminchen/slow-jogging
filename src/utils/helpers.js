@@ -10,13 +10,8 @@ export const initAudioContext = () => {
     return audioContext;
 };
 
-// 播放步頻節拍音效
-export const playMetronomeSound = (frequency = 800, duration = 0.05) => {
-    const ctx = initAudioContext();
-    if (ctx.state === 'suspended') {
-        ctx.resume();
-    }
-
+// 內部播放函數
+const _playMetronome = (ctx, frequency = 800, duration = 0.05) => {
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
@@ -33,14 +28,17 @@ export const playMetronomeSound = (frequency = 800, duration = 0.05) => {
     oscillator.stop(ctx.currentTime + duration);
 };
 
-// 播放慶祝音效
-export const playCelebrationSound = () => {
+// 播放步頻節拍音效
+export const playMetronomeSound = async (frequency = 800, duration = 0.05) => {
     const ctx = initAudioContext();
     if (ctx.state === 'suspended') {
-        ctx.resume();
+        await ctx.resume();
     }
+    _playMetronome(ctx, frequency, duration);
+};
 
-    // 播放上升的音階
+// 內部播放慶祝音效函數
+const _playCelebration = (ctx) => {
     const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
 
     notes.forEach((freq, index) => {
@@ -61,6 +59,15 @@ export const playCelebrationSound = () => {
             oscillator.stop(ctx.currentTime + 0.3);
         }, index * 150);
     });
+};
+
+// 播放慶祝音效
+export const playCelebrationSound = async () => {
+    const ctx = initAudioContext();
+    if (ctx.state === 'suspended') {
+        await ctx.resume();
+    }
+    _playCelebration(ctx);
 };
 
 // 格式化時間顯示 (mm:ss)
