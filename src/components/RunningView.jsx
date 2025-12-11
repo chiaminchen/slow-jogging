@@ -190,10 +190,12 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
     const togglePause = () => {
         if (isPaused) {
             // 繼續
+            isPausedRef.current = false; // 手動立即更新 ref，避免 startMetronome 讀到舊值
             startTimer();
             startMetronome();
         } else {
             // 暫停
+            isPausedRef.current = true; // 手動立即更新 ref
             if (timerRef.current) clearInterval(timerRef.current);
             stopMetronome();
             pausedTimeRef.current = timeLeft;
