@@ -1,6 +1,15 @@
 import runIcon from '../assets/run.png';
+import { initAudioContext } from '../utils/helpers';
 
 export function TimerSetup({ duration, setDuration, bpm, setBpm, onStart, onShowHistory }) {
+    // 處理開始按鈕點擊 - 在用戶互動事件中 resume AudioContext
+    const handleStart = async () => {
+        const ctx = initAudioContext();
+        if (ctx.state === 'suspended') {
+            await ctx.resume();
+        }
+        onStart();
+    };
     const minDuration = 5;
     const maxDuration = 120;
     const minBpm = 120;
@@ -65,7 +74,7 @@ export function TimerSetup({ duration, setDuration, bpm, setBpm, onStart, onShow
 
             {/* 開始按鈕 */}
             <button
-                onClick={onStart}
+                onClick={handleStart}
                 className="btn btn-success btn-block btn-lg"
                 style={{ marginTop: 'var(--space-xl)' }}
             >
