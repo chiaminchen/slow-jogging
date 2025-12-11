@@ -110,7 +110,7 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
         requestWakeLock();
 
         // 處理頁面可見性變化
-        const handleVisibilityChange = () => {
+        const handleVisibilityChange = async () => {
             if (document.visibilityState === 'hidden') {
                 // 頁面隱藏時停止節拍器（避免多重 interval）
                 if (metronomeRef.current) {
@@ -122,9 +122,17 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
                 if (!isPausedRef.current && !isCompletedRef.current) {
                     // 重新請求 wake lock
                     requestWakeLock();
-                    // 重建 AudioContext 並重新開始節拍器
+                    // 重建 AudioContext
                     resetAudioContext();
-                    startMetronome();
+                    // 直接建立新的節拍器 interval（不依賴閉包中的 startMetronome）
+                    if (metronomeRef.current) {
+                        clearInterval(metronomeRef.current);
+                    }
+                    // 先播放一次確保 AudioContext 激活
+                    await playMetronomeSound();
+                    metronomeRef.current = setInterval(() => {
+                        playMetronomeSound();
+                    }, 60000 / bpm);
                 }
             }
         };
@@ -136,7 +144,7 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
             releaseWakeLock();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [startTimer, startMetronome]);
+    }, [startTimer, startMetronome, bpm]);
 
     // 完成處理
     useEffect(() => {
