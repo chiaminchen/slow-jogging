@@ -14,6 +14,8 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
     const startTimeRef = useRef(null);
     const pausedTimeRef = useRef(0);
     const wakeLockRef = useRef(null);
+    // 追蹤組件掛載狀態
+    const mountedRef = useRef(true);
 
     const totalSeconds = duration * 60;
     const progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
@@ -24,19 +26,34 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
+    // 更新掛載狀態
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
     // 開始節拍器
     const startMetronome = useCallback(async () => {
         if (metronomeRef.current) {
             clearInterval(metronomeRef.current);
+            metronomeRef.current = null;
         }
 
         initAudioContext();
-        // 先 await 確保 AudioContext 恢復（手機第二次跑步時需要）
+        // 先 await 確保 AudioContext 恢復
         await playMetronomeSound();
 
-        metronomeRef.current = setInterval(() => {
-            playMetronomeSound();
-        }, 60000 / bpm);
+        // 檢查組件是否仍在掛載中，以及是否應該播放
+        if (mountedRef.current && !isPausedRef.current && !isCompletedRef.current) {
+            // 再次清除以防萬一
+            if (metronomeRef.current) clearInterval(metronomeRef.current);
+
+            metronomeRef.current = setInterval(() => {
+                playMetronomeSound();
+            }, 60000 / bpm);
+        }
     }, [bpm]);
 
     // 停止節拍器
@@ -124,15 +141,25 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
                     requestWakeLock();
                     // 重建 AudioContext
                     resetAudioContext();
-                    // 直接建立新的節拍器 interval（不依賴閉包中的 startMetronome）
+
+                    // 直接建立新的節拍器 interval
                     if (metronomeRef.current) {
                         clearInterval(metronomeRef.current);
+                        metronomeRef.current = null;
                     }
+
                     // 先播放一次確保 AudioContext 激活
                     await playMetronomeSound();
-                    metronomeRef.current = setInterval(() => {
-                        playMetronomeSound();
-                    }, 60000 / bpm);
+
+                    // 確保組件仍在掛載中且頁面仍可見才啟動 interval
+                    if (mountedRef.current && document.visibilityState === 'visible' && !isPausedRef.current && !isCompletedRef.current) {
+                        // 再次清除以防萬一
+                        if (metronomeRef.current) clearInterval(metronomeRef.current);
+
+                        metronomeRef.current = setInterval(() => {
+                            playMetronomeSound();
+                        }, 60000 / bpm);
+                    }
                 }
             }
         };
