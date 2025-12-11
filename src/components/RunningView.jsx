@@ -25,13 +25,14 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
     // 開始節拍器
-    const startMetronome = useCallback(() => {
+    const startMetronome = useCallback(async () => {
         if (metronomeRef.current) {
             clearInterval(metronomeRef.current);
         }
 
         initAudioContext();
-        playMetronomeSound();
+        // 先 await 確保 AudioContext 恢復（手機第二次跑步時需要）
+        await playMetronomeSound();
 
         metronomeRef.current = setInterval(() => {
             playMetronomeSound();
