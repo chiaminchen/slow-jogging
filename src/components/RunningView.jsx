@@ -139,8 +139,6 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
                 if (!isPausedRef.current && !isCompletedRef.current) {
                     // 重新請求 wake lock
                     requestWakeLock();
-                    // 重建 AudioContext
-                    resetAudioContext();
 
                     // 直接建立新的節拍器 interval
                     if (metronomeRef.current) {
