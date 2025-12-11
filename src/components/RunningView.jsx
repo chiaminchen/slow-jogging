@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { formatTime, playMetronomeSound, playCelebrationSound, initAudioContext } from '../utils/helpers';
+import { formatTime, playMetronomeSound, playCelebrationSound, initAudioContext, resetAudioContext } from '../utils/helpers';
 import { saveRunRecord } from '../utils/api';
 
 export function RunningView({ duration, bpm, onComplete, onStop }) {
@@ -91,16 +91,41 @@ export function RunningView({ duration, bpm, onComplete, onStop }) {
         }
     };
 
+    // 追蹤當前狀態的 ref（避免閉包問題）
+    const isPausedRef = useRef(isPaused);
+    const isCompletedRef = useRef(isCompleted);
+
+    useEffect(() => {
+        isPausedRef.current = isPaused;
+    }, [isPaused]);
+
+    useEffect(() => {
+        isCompletedRef.current = isCompleted;
+    }, [isCompleted]);
+
     // 初始化
     useEffect(() => {
         startTimer();
         startMetronome();
         requestWakeLock();
 
-        // 處理頁面可見性變化（從背景回到前景時重新請求）
+        // 處理頁面可見性變化
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && !isPaused && !isCompleted) {
-                requestWakeLock();
+            if (document.visibilityState === 'hidden') {
+                // 頁面隱藏時停止節拍器（避免多重 interval）
+                if (metronomeRef.current) {
+                    clearInterval(metronomeRef.current);
+                    metronomeRef.current = null;
+                }
+            } else if (document.visibilityState === 'visible') {
+                // 頁面顯示時
+                if (!isPausedRef.current && !isCompletedRef.current) {
+                    // 重新請求 wake lock
+                    requestWakeLock();
+                    // 重建 AudioContext 並重新開始節拍器
+                    resetAudioContext();
+                    startMetronome();
+                }
             }
         };
         document.addEventListener('visibilitychange', handleVisibilityChange);
