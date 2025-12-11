@@ -1,13 +1,10 @@
 import runIcon from '../assets/run.png';
-import { initAudioContext } from '../utils/helpers';
+import { resetAudioContext } from '../utils/helpers';
 
 export function TimerSetup({ duration, setDuration, bpm, setBpm, onStart, onShowHistory }) {
-    // 處理開始按鈕點擊 - 在用戶互動事件中 resume AudioContext
-    const handleStart = async () => {
-        const ctx = initAudioContext();
-        if (ctx.state === 'suspended') {
-            await ctx.resume();
-        }
+    // 處理開始按鈕點擊 - 在用戶互動事件中重建 AudioContext（iOS Safari 螢幕休眠後需要）
+    const handleStart = () => {
+        resetAudioContext();
         onStart();
     };
     const minDuration = 5;

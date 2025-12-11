@@ -10,6 +10,19 @@ export const initAudioContext = () => {
     return audioContext;
 };
 
+// 強制重置 AudioContext（iOS Safari 螢幕休眠後需要）
+export const resetAudioContext = () => {
+    if (audioContext) {
+        try {
+            audioContext.close();
+        } catch (e) {
+            // 忽略關閉錯誤
+        }
+    }
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    return audioContext;
+};
+
 // 內部播放函數
 const _playMetronome = (ctx, frequency = 800, duration = 0.05) => {
     const oscillator = ctx.createOscillator();
