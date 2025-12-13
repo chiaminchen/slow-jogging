@@ -167,9 +167,14 @@ slow-jogging-v3/
 
 本專案已配置 GitHub Actions，推送到 `main` 分支時會自動部署到 GitHub Pages。
 
+> [!IMPORTANT]
+> **重要注意事項**
+> 由於 `vite.config.js` 中的 `base` 路徑設定為 `/slow-jogging/`，您的 GitHub Repository 名稱 **必須** 為 `slow-jogging`，否則部署後的網頁會無法正確載入資源。
+> 如果您想使用其他專案名稱，請記得修改 `vite.config.js` 中的 `base` 設定。
+
 ### 步驟一：建立 GitHub Repository
 
-1. 在 GitHub 建立新的 repository，名稱為 `slow-jogging`
+1. 在 GitHub 建立新的 repository，名稱建議為 `slow-jogging`
 2. 將本地專案推送到 GitHub：
 
 ```bash
@@ -183,20 +188,22 @@ git push -u origin main
 
 ### 步驟二：設定 Repository Secrets
 
+為了讓 GitHub Actions 能正確建置專案，您需要在 Repository 設定中加入環境變數。
+
 1. 進入 GitHub repository 頁面
 2. 點擊 **Settings** > **Secrets and variables** > **Actions**
-3. 點擊 **New repository secret**，新增以下三個 Secrets：
+3. 點擊 **New repository secret**，新增以下三個 Secrets（請參考 `.env.example`）：
 
-| Secret 名稱 | 說明 |
-|-------------|------|
-| `VITE_GOOGLE_APP_SCRIPT_URL` | Google Apps Script 部署後的網址 |
-| `VITE_USERNAME` | 登入使用者名稱 |
-| `VITE_PASSWORD` | 登入密碼 |
+| Secret 名稱 | 說明 | 範例值 |
+|-------------|------|--------|
+| `VITE_GOOGLE_APP_SCRIPT_URL` | Google Apps Script 部署後的網址 | `https://script.google.com/macros/s/.../exec` |
+| `VITE_USERNAME` | 登入使用者名稱 | `admin` |
+| `VITE_PASSWORD` | 登入密碼 | `password123` |
 
 ### 步驟三：啟用 GitHub Pages
 
 1. 進入 **Settings** > **Pages**
-2. **Source** 選擇 **GitHub Actions**
+2. **Source** 選擇 **GitHub Actions** (原本可能是 Deploy from a branch，請改為 GitHub Actions)
 3. 儲存設定
 
 ### 步驟四：觸發部署
@@ -215,7 +222,7 @@ git push
 https://你的帳號.github.io/slow-jogging/
 ```
 
-> 💡 也可以在 **Actions** 頁面手動點擊 **Run workflow** 觸發部署
+> 💡 您可以在 Repository 的 **Actions** 頁籤查看部署進度和狀態。若是第一次部署，可能需要幾分鐘時間。
 
 ---
 
