@@ -62,6 +62,11 @@ export function HistoryView({ onBack }) {
         return formatDateKey(date) === formatDateKey(today);
     };
 
+    // 計算本週總分鐘數
+    const weekTotalMinutes = useMemo(() => {
+        return Object.values(historyData).reduce((sum, minutes) => sum + minutes, 0);
+    }, [historyData]);
+
     return (
         <div className="card">
             <h1 className="page-title">
@@ -94,6 +99,15 @@ export function HistoryView({ onBack }) {
                     >
                         →
                     </button>
+                </div>
+            </div>
+
+            {/* 本週紀錄 */}
+            <div className="week-record">
+                <span className="week-label">這週總共跑了</span>
+                <div className="week-value">
+                    {weekTotalMinutes}
+                    <span className="week-unit">分鐘</span>
                 </div>
             </div>
 

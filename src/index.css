@@ -282,7 +282,7 @@ body {
   background: var(--color-bg-tertiary);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-md);
-  padding: var(--space-lg);
+  padding: var(--space-md);
   margin-bottom: var(--space-lg);
   text-align: center;
   display: flex;
@@ -308,6 +308,44 @@ body {
 }
 
 .today-unit {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-left: var(--space-xs);
+  vertical-align: baseline;
+  -webkit-text-fill-color: var(--color-text-muted);
+}
+
+/* ===== 本週紀錄 ===== */
+.week-record {
+  background: var(--color-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.week-label {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.week-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.week-unit {
   font-size: 1rem;
   color: var(--color-text-muted);
   margin-left: var(--space-xs);
@@ -455,7 +493,7 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  height: 250px;
+  height: 200px;
   padding: var(--space-md);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
@@ -683,7 +721,7 @@ body {
   }
 
   .bar-chart {
-    height: 300px;
+    height: 250px;
   }
 
   .bar-item {
