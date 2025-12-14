@@ -43,3 +43,26 @@ export const getHistoryData = async (startDate, endDate) => {
         return { success: false, error: error.message, data: [] };
     }
 };
+
+// 取得今天累計資料
+export const getTodayData = async () => {
+    try {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+
+        const result = await getHistoryData(dateStr, dateStr);
+
+        if (result.success && result.data && result.data.length > 0) {
+            // Google Sheet API 回傳格式如果是陣列，取第一筆資料的 totalMinutes
+            // 假設回傳格式為 [{ date: '2023-12-14', totalMinutes: 30 }]
+            return { success: true, totalMinutes: result.data[0].totalMinutes || 0 };
+        }
+        return { success: true, totalMinutes: 0 };
+    } catch (error) {
+        console.error('取得今天資料失敗:', error);
+        return { success: false, error: error.message, totalMinutes: 0 };
+    }
+};

@@ -1,7 +1,20 @@
+import { useState, useEffect } from 'react';
 import runIcon from '../assets/run.png';
 import { resetAudioContext } from '../utils/helpers';
+import { getTodayData } from '../utils/api';
 
 export function TimerSetup({ duration, setDuration, bpm, setBpm, onStart, onShowHistory }) {
+    const [todayMinutes, setTodayMinutes] = useState(0);
+
+    useEffect(() => {
+        const fetchTodayData = async () => {
+            const result = await getTodayData();
+            if (result.success) {
+                setTodayMinutes(result.totalMinutes);
+            }
+        };
+        fetchTodayData();
+    }, []);
     // 處理開始按鈕點擊 - 在用戶互動事件中重建 AudioContext（iOS Safari 螢幕休眠後需要）
     const handleStart = () => {
         resetAudioContext();
@@ -23,6 +36,15 @@ export function TimerSetup({ duration, setDuration, bpm, setBpm, onStart, onShow
             <div className="nav-tabs">
                 <button className="nav-tab active">計時設定</button>
                 <button className="nav-tab" onClick={onShowHistory}>歷史紀錄</button>
+            </div>
+
+            {/* 今天紀錄 */}
+            <div className="today-record">
+                <span className="today-label">今天已經跑了</span>
+                <div className="today-value">
+                    {todayMinutes}
+                    <span className="today-unit">分鐘</span>
+                </div>
             </div>
 
             {/* 時間設定 */}
